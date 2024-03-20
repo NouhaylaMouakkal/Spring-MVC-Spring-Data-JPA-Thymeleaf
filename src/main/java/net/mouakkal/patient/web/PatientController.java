@@ -18,22 +18,25 @@ import java.util.List;
 public class PatientController {
     @Autowired
     private PatientRepository patientRepository;
-    @GetMapping(path ="/index")
 
-    public String index(Model model, @RequestParam(name = "page" , defaultValue = "0" ) int page,
-                        @RequestParam(name = "size" , defaultValue = "4" ) int size,
-                        @RequestParam(name = "keyword" , defaultValue = "" ) String kw){
+    @GetMapping(path = "/index")
+    public String index(Model model,
+                        @RequestParam(name = "page", defaultValue = "0") int page,
+                        @RequestParam(name = "size", defaultValue = "4") int size,
+                        @RequestParam(name = "keyword", defaultValue = "") String kw) {
         Page<Patient> patientPage = patientRepository.findByNomContains(kw, PageRequest.of(page, size));
         model.addAttribute("listPatients", patientPage.getContent());
         model.addAttribute("pages", new int[patientPage.getTotalPages()]);
         model.addAttribute("currentPage", page);
-        model.addAttribute("keyword",kw);
+        model.addAttribute("keyword", kw);
         return "index";
     }
-    @GetMapping(path = "/delete")
-    public String delete(Long id,int page,String keyword ){
-        patientRepository.deleteById(id);
-        return "redirect:/index?page="+page+"&keyword="+keyword;
-    }
 
+    @GetMapping(path = "/delete")
+    public String delete(@RequestParam Long id,
+                         @RequestParam int page,
+                         @RequestParam String keyword) {
+        patientRepository.deleteById(id);
+        return "redirect:/index?page=" + page + "&keyword=" + keyword;
+    }
 }

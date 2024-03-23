@@ -26,7 +26,7 @@
 <div layout:fragment="content1" class="container">
     <div class="row">
         <div class="col-md-6 offset-md-3 form-container">
-            <form th:action="@{save?page=${page}&keyword=${keyword}}" method="post">
+            <form th:action="@{save(page=${page},keyword=${keyword})}" method="post">
                 <div class="form-group">
                     <label>ID</label>
                     <input type="text" name="id" class="form-control" th:value="${patient.id}" readonly>

@@ -1,5 +1,6 @@
 package net.mouakkal.patient.web;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import net.mouakkal.patient.entities.Patient;
 import net.mouakkal.patient.repository.PatientRepository;
@@ -18,7 +19,10 @@ import java.util.List;
 public class PatientController {
     @Autowired
     private PatientRepository patientRepository;
-
+    @GetMapping("/")
+    public String home() {
+        return "redirect:/index";
+    }
     @GetMapping(path = "/index")
     public String index(Model model,
                         @RequestParam(name = "page", defaultValue = "0") int page,
@@ -33,10 +37,36 @@ public class PatientController {
     }
 
     @GetMapping(path = "/delete")
-    public String delete(@RequestParam Long id,
-                         @RequestParam int page,
-                         @RequestParam String keyword) {
+    public String delete(@RequestParam Long id, @RequestParam int page, @RequestParam String keyword) {
         patientRepository.deleteById(id);
         return "redirect:/index?page=" + page + "&keyword=" + keyword;
+    }
+    @GetMapping("/patients")
+    @ResponseBody
+    public List<Patient> listPatients(){
+        return patientRepository.findAll();
+    }
+    @GetMapping("/formPatients")
+
+    public String formPatients(Model model){
+        model.addAttribute("patient", new Patient());
+        return "formPatients";
+    }
+    @PostMapping("/save")
+
+    public String save(Model model, @Valid Patient patient, BindingResult bindingResult){
+        if(bindingResult.hasErrors())   return "formPatients";
+        patientRepository.save(patient);
+        return "redirect:/index";
+    }
+    @GetMapping("/editPatient")
+
+    public String editPatient(Model model, Long id, @RequestParam int page, @RequestParam String keyword){
+        Patient patient = patientRepository.findById(id).orElse(null);
+        if (patient==null) throw new RuntimeException("Patient introuvable");
+        model.addAttribute("patient", patient);
+        model.addAttribute("page", page);
+        model.addAttribute("keyword", keyword);
+        return "editPatient";
     }
 }

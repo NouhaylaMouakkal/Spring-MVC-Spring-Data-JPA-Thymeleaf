@@ -21,9 +21,9 @@ public class PatientController {
     private PatientRepository patientRepository;
     @GetMapping("/")
     public String home() {
-        return "redirect:/index";
+        return "redirect:/user/index";
     }
-    @GetMapping(path = "/index")
+    @GetMapping(path = "/user/index")
     public String index(Model model,
                         @RequestParam(name = "page", defaultValue = "0") int page,
                         @RequestParam(name = "size", defaultValue = "4") int size,
@@ -36,31 +36,41 @@ public class PatientController {
         return "index";
     }
 
-    @GetMapping(path = "/delete")
+    @GetMapping(path = "/admin/delete")
     public String delete(@RequestParam Long id, @RequestParam int page, @RequestParam String keyword) {
         patientRepository.deleteById(id);
         return "redirect:/index?page=" + page + "&keyword=" + keyword;
     }
-    @GetMapping("/patients")
+    /*@GetMapping("/patients")
     @ResponseBody
     public List<Patient> listPatients(){
         return patientRepository.findAll();
-    }
-    @GetMapping("/formPatients")
+    }*/
+    @GetMapping("/admin/formPatients")
 
     public String formPatients(Model model){
         model.addAttribute("patient", new Patient());
         return "formPatients";
     }
-    @PostMapping("/save")
+    @PostMapping("/admin/save")
 
     public String save(Model model, @Valid Patient patient, BindingResult bindingResult,
                        @RequestParam(defaultValue = "0") int page , @RequestParam(defaultValue = "") String keyword){
         if(bindingResult.hasErrors())   return "formPatients";
+        if (patient.getId() != 0) {
+            Patient existingPatient = patientRepository.findById(patient.getId()).orElse(null);
+            if (existingPatient != null) {
+                existingPatient.setNom(patient.getNom());
+                existingPatient.setDateNaissance(patient.getDateNaissance());
+                existingPatient.setMalade(patient.getMalade());
+                existingPatient.setScore(patient.getScore());
+                patient = existingPatient;
+            }
+        }
         patientRepository.save(patient);
         return "redirect:/index?page"+page+"&keyword="+keyword;
     }
-    @GetMapping("/editPatient")
+    @GetMapping("/admin/editPatient")
 
     public String editPatient(Model model, Long id, @RequestParam int page, @RequestParam String keyword){
         Patient patient = patientRepository.findById(id).orElse(null);
